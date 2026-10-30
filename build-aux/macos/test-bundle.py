@@ -23,6 +23,7 @@ run = bundle.run
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("app", type=Path, nargs="?", default=ROOT / "dist/Quadrapassel.app")
+    parser.add_argument("--identity", help="Sign the temporary probe with the same Developer ID to test Hardened Runtime")
     args = parser.parse_args()
     app = args.app.resolve()
     run("codesign", "--verify", "--deep", "--strict", app)
@@ -54,8 +55,9 @@ def main():
         for rpath in rpaths:
             changes += ["-delete_rpath", rpath]
         run("install_name_tool", *changes, probe)
-        run("codesign", "--force", "--sign", "-", probe)
-        run("codesign", "--force", "--sign", "-", moved)
+        signing = ["--timestamp", "--options", "runtime"] if args.identity else []
+        run("codesign", "--force", *signing, "--sign", args.identity or "-", probe)
+        run("codesign", "--force", *signing, "--sign", args.identity or "-", moved)
 
         # Keep the real user identity for CoreAudio, but isolate all application data.
         clean = {key: os.environ[key] for key in ("HOME", "USER", "LOGNAME", "TMPDIR") if key in os.environ}

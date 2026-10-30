@@ -4,3 +4,17 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# Machine-local signing settings and credentials never belong in source control.
+/build-aux/macos/release.local.json
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.p8
+*.key
+*.pem
+*.cer
+*.provisionprofile
+*.mobileprovision

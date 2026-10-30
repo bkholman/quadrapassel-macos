@@ -125,11 +125,110 @@ On macOS gamepads are disabled automatically; requesting `-Dgamepad=enabled`
 reports that the controller backend requires Linux. Linux desktop, D-Bus, and
 AppStream files are omitted from the Mac install.
 
-## Releases and licensing
+## Signed DMG releases
 
-The generated app is signed locally, not Developer ID signed or notarized for
-public distribution. Public releases should add Developer ID signing and Apple
-notarization, and be tested on the supported architectures and macOS versions.
+`build-app.py` still produces the ad-hoc development app. The separate
+`build-aux/macos/release.py` script copies that app to a versioned release folder,
+signs every bundled library and the app with Developer ID, enables Hardened
+Runtime, and creates a signed drag-to-Applications DMG. With `--notarize`, it
+uploads the app and then the DMG to Apple, retains submission IDs and diagnostics,
+staples accepted tickets, and verifies Gatekeeper acceptance. It never publishes
+to a website, GitHub, Gitea, or the App Store.
+
+All release tooling lives in this repository. The workflow follows the useful
+steps from the LoanExplorer release process, without depending on that checkout,
+its app identifiers, its cloud configuration, or its proprietary artwork.
+
+### One-time machine setup
+
+Keep the **Developer ID Application** certificate and its private key in macOS
+Keychain. Use an existing `notarytool` Keychain profile for the Apple account;
+the email address alone is not a signing identity. No key export is needed.
+
+```sh
+cp build-aux/macos/release.example.json build-aux/macos/release.local.json
+```
+
+Edit the ignored local JSON with the installed certificate's display name and
+the existing Keychain profile's name. Those are references, not passwords or key
+contents. The script accepts only those two settings. Alternatively, supply
+`QUADRAPASSEL_SIGNING_IDENTITY` and `QUADRAPASSEL_NOTARY_PROFILE` in the environment,
+or use `--identity` and `--notary-profile`. Command-line values take precedence.
+
+The local settings file, release outputs, common private-key/certificate formats,
+provisioning profiles, and local environment files are ignored by Git. Never
+force-add credentials. The checked-in example contains placeholders only.
+
+The release script creates a local Python environment under
+`build-macos/dmg-tools` and installs the pinned versions from
+`build-aux/macos/dmg-requirements.txt` when necessary. Packaging requires Python
+3.11+, Apple's command-line signing/disk-image tools, and the build dependencies
+listed above. Keychain access and internet access to Apple are required for
+timestamped signatures and notarization; the first tooling setup also uses PyPI.
+
+### Build, sign, and notarize
+
+```sh
+python3 build-aux/macos/build-app.py
+python3 build-aux/macos/test-bundle.py
+python3 build-aux/macos/release.py --build-number 1 --notarize
+```
+
+Use a new positive build number for a changed candidate. For version 51.0, build
+1, and Apple silicon, the output is:
+
+```text
+dist/releases/Quadrapassel-51.0-1-arm64/
+  Quadrapassel.app
+  Quadrapassel-51.0-1-arm64.dmg
+  Quadrapassel-51.0-1-arm64.dmg.sha256
+  release-state.json
+  app-submission.json / app-result.json / app-log.json
+  dmg-submission.json / dmg-result.json / dmg-log.json
+```
+
+The script checks the app inside a read-only mount of the DMG, compares it to the
+signed source app, verifies the Applications link and Finder icon/background layout,
+and writes the final checksum
+only after successful verification. It uses no extra Hardened Runtime exceptions.
+Apple silicon/Intel support and minimum macOS version remain those of the input
+app; signing does not make the current arm64 build universal.
+
+Omit `--notarize` to produce signed local artifacts without uploading to Apple.
+That mode does not claim notarization or Gatekeeper acceptance.
+
+### Retry and verify
+
+If a submission times out or the process is interrupted:
+
+```sh
+python3 build-aux/macos/release.py --build-number 1 --notarize --resume
+```
+
+Resume requires the same input bundle and signing options. It uses saved
+submission IDs instead of uploading again, skips completed stages, and repeats
+the final checks. It also works as a verification command for a completed local
+release. Preserve the original development bundle until preparation completes;
+rebuilding it changes the input fingerprint. A lock prevents simultaneous work
+on the same release. After an abrupt termination, confirm no release process is
+running before removing a stale `.release-lock` directory inside that release.
+
+To test relocated resources under Developer ID signing and Hardened Runtime:
+
+```sh
+python3 build-aux/macos/test-bundle.py \
+  dist/releases/Quadrapassel-51.0-1-arm64/Quadrapassel.app \
+  --identity 'Developer ID Application: Your Name (TEAMID)'
+```
+
+This signs only a temporary test copy and probe; it leaves the release untouched.
+Test the signed app's UI as well. Retain completed artifacts for distribution
+instead of silently replacing a published release with rebuilt bytes.
+
+References: Apple's [distribution signing](https://developer.apple.com/documentation/xcode/creating-distribution-signed-code-for-the-mac/)
+and [notarization workflow](https://developer.apple.com/documentation/security/customizing-the-notarization-workflow).
+
+## Licensing
 
 Quadrapassel's GPL-3.0-or-later license and existing author credits are retained.
 The bundled libgnome-games-support source retains its LGPL-3.0-or-later license.

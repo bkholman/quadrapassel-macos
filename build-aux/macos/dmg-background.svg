@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">
+  <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+  <rect width="640" height="420" fill="#f4f4f7"/>
+  <g font-family="Helvetica, sans-serif" text-anchor="middle" fill="#25252b">
+    <text x="320" y="62" font-size="30" font-weight="bold">Quadrapassel</text>
+    <text x="320" y="98" font-size="16" fill="#62626c">Drag the app to Applications</text>
+  </g>
+  <path d="M288 229h64m-15-15 15 15-15 15" stroke="#777784" stroke-width="4"
+        fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="320" y="366" font-family="Helvetica, sans-serif" text-anchor="middle"
+        font-size="13" fill="#62626c">Fit falling blocks together</text>
+</svg>
