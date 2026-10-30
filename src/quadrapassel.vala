@@ -1204,6 +1204,7 @@ public class Quadrapassel : Adw.Application
             "Robert Ancell",
             "John Ward",
             "Will Warner",
+            "Brian Holman (MacOS port)",
         };
 
         var about = new Adw.AboutDialog () {
