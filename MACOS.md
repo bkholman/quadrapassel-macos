@@ -84,9 +84,53 @@ The app resolves resources relative to its executable, including when renamed or
 moved. Image-loader cache files are written under GLib's user cache directory,
 outside the signed app bundle.
 
+In **Preferences → Game → Scoring**, **Scoring: reduce the base row bonus** is
+enabled by default. When a clear includes the bottom row, the bonus is
+`100 × level × rows cleared`. Turning it off restores the rules immediately
+before April 2026: `2500 × level × rows cleared`. This differs from version 40.2,
+which awarded a flat `10000 × level` bottom-row bonus. Regular line-clear points
+are unchanged.
+
+Changing the switch offers **Keep Scores**, **Reset Scoreboard**, or **Cancel**.
+Reset clears scores for every difficulty, including imported old scores; keeping
+them permits scores from both rules in the same scoreboard. Cancel leaves the
+setting and scores unchanged. The selected rule applies to new games. A running
+game keeps its original rule, and resetting prevents that game's score from
+being saved on game over or when quitting.
+
+## Languages
+
+**Preferences → Appearance → Language** offers **System** (the default), English,
+and the installed GNOME translations, listed by their native names in a searchable
+menu. Reopen Quadrapassel after changing the selection; a running game is not
+interrupted. Selecting System again restores automatic selection on the next
+launch. A manual choice is stored in the same preferences file as the other settings.
+
+On macOS, System reads the OS's ordered preferred languages, including an app
+language selected in macOS Language & Region. Region and script variants map to
+the GNOME catalogs (for example, `pt-BR` → `pt_BR`, `zh-Hant` → `zh_TW`, and
+`sr-Latn` → `sr@latin`). Unsupported languages fall through to the next OS preference,
+then English. Manual overrides affect only Quadrapassel, including its native
+application menu, and never write macOS language settings. Linux's System option
+continues to use its locale environment.
+
+The app advertises its bundled languages in `Info.plist` and resolves the app,
+scoreboard, GTK, libadwaita, GLib and GdkPixbuf translation domains inside the bundle.
+No Homebrew installation is needed to load translations. Right-to-left languages
+use a right-to-left interface. Translation coverage varies by language; missing
+strings fall back to English. The new language controls include translations in
+German, Spanish, French, Italian, Japanese, Brazilian Portuguese, Russian,
+Ukrainian, Simplified Chinese and Traditional Chinese. The new scoring controls
+also have German, Spanish and French translations.
+
+`data/languages.json` holds native names and macOS language tags;
+`po/LINGUAS` remains the upstream list of translation catalogs. The build generates
+the selector's registry from both and fails if a newly added language lacks metadata.
+Only installed catalogs appear in the selector and macOS bundle declaration.
+
 ## Validation
 
-Run the existing score tests:
+Run the game scoring and scoreboard tests:
 
 ```sh
 XDG_DATA_HOME="$PWD/build-macos/test-data" meson test -C build-macos --print-errorlogs
@@ -96,6 +140,7 @@ Run the bundle integration test on macOS with an available audio output:
 
 ```sh
 python3 build-aux/macos/test-bundle.py
+python3 build-aux/macos/test-localization.py
 ```
 
 This copies the app to a temporary path containing spaces, renames it, compiles
@@ -103,6 +148,12 @@ a small resource probe, and runs it twice with a clean environment and isolated
 preferences. It checks SVG loading, settings persistence between processes, all
 eight Ogg sound files and OpenAL playback initialization, loaded-library paths,
 and code signatures. The original bundle and user preferences are untouched.
+
+The localization test runs a probe in a temporary renamed app with isolated data.
+It checks System and manual choices, language/script/region fallbacks, English,
+right-to-left layout, app/GTK/libadwaita translations, bundled domain paths,
+macOS language metadata and the relocated signature. Its simulated OS preferences
+exist only in the test process; your macOS settings are not changed.
 
 Also test through Finder: start a game, move/rotate/drop pieces, pause, change a
 theme, reopen Preferences, view rules and scores, quit, and relaunch. Check the

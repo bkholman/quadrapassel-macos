@@ -440,3 +440,59 @@ msgstr "Date"
 
 #~ msgid "_Quit"
 #~ msgstr "_Quitter"
+
+#: src/quadrapassel.vala
+msgid "System"
+msgstr "Système"
+
+#: src/quadrapassel.vala
+msgid "Language"
+msgstr "Langue"
+
+#: src/quadrapassel.vala
+msgid "Restart Quadrapassel to apply language changes."
+msgstr "Redémarrez Quadrapassel pour appliquer le changement de langue."
+
+#: src/quadrapassel.vala
+msgid "Scoring"
+msgstr "Points"
+
+#: src/quadrapassel.vala
+msgid "* If turned off, scoring reverts to the pre-April 2026 rules. Changes apply to new games."
+msgstr "* Si cette option est désactivée, le calcul des points suit les règles antérieures à avril 2026. Les changements s’appliquent aux nouvelles parties."
+
+#: src/quadrapassel.vala
+msgid "Scoring: reduce the base row bonus *"
+msgstr "Points : réduire le bonus de la ligne du bas *"
+
+#: src/quadrapassel.vala
+msgid "Your scoreboard could contain scores calculated using two different scoring rules. Would you like to reset the scoreboard? Resetting clears all saved scores for every difficulty."
+msgstr "Votre tableau des scores pourrait contenir des scores calculés selon deux règles différentes. Voulez-vous le réinitialiser ? La réinitialisation efface tous les scores enregistrés, pour tous les niveaux de difficulté."
+
+#: src/quadrapassel.vala
+msgid "The new rules apply to your next game. If you reset the scoreboard, your current game can continue, but its score will not be saved."
+msgstr "Les nouvelles règles s’appliqueront à votre prochaine partie. Si vous réinitialisez les scores, vous pourrez continuer la partie en cours, mais son score ne sera pas enregistré."
+
+#: src/quadrapassel.vala
+msgid "Reset the Scoreboard?"
+msgstr "Réinitialiser les scores ?"
+
+#: src/quadrapassel.vala
+msgid "_Keep Scores"
+msgstr "_Conserver les scores"
+
+#: src/quadrapassel.vala
+msgid "_Reset Scoreboard"
+msgstr "_Réinitialiser les scores"
+
+#: src/quadrapassel.vala
+msgid "_Cancel"
+msgstr "_Annuler"
+
+#: src/quadrapassel.vala
+msgid "Could Not Reset the Scoreboard"
+msgstr "Impossible de réinitialiser les scores"
+
+#: src/quadrapassel.vala
+msgid "The scoring setting has not changed. Some scores may already have been removed. Please check that your scores folder is writable and try again."
+msgstr "Le réglage des points n’a pas changé. Certains scores ont peut-être déjà été supprimés. Vérifiez que vous pouvez écrire dans le dossier des scores, puis réessayez."

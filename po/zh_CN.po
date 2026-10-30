@@ -622,3 +622,15 @@ msgstr ""
 
 #~ msgid "_About"
 #~ msgstr "关于(_A)"
+
+#: src/quadrapassel.vala
+msgid "System"
+msgstr "系统"
+
+#: src/quadrapassel.vala
+msgid "Language"
+msgstr "语言"
+
+#: src/quadrapassel.vala
+msgid "Restart Quadrapassel to apply language changes."
+msgstr "重启 Quadrapassel 以应用语言更改。"

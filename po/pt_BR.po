@@ -679,3 +679,15 @@ msgstr ""
 #~| msgid "Fit falling blocks together"
 #~ msgid "A classic game of fitting falling blocks together"
 #~ msgstr "Um jogo clássico de encaixar blocos caindo"
+
+#: src/quadrapassel.vala
+msgid "System"
+msgstr "Sistema"
+
+#: src/quadrapassel.vala
+msgid "Language"
+msgstr "Idioma"
+
+#: src/quadrapassel.vala
+msgid "Restart Quadrapassel to apply language changes."
+msgstr "Reinicie o Quadrapassel para aplicar a alteração de idioma."

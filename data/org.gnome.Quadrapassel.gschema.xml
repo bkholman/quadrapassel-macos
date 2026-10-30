@@ -1,5 +1,10 @@
 <schemalist>
   <schema id="@app-id@" path="@base-id-slashed@/" gettext-domain="quadrapassel">
+    <key name="language" type="s">
+      <default>'system'</default>
+      <summary>Display language</summary>
+      <description>Use system to follow the operating system's language preferences, or a supported translation code to override them. Changes take effect when the application is restarted.</description>
+    </key>
     <key name="block-pixmap" type="s">
       <default>'7blocks-gw.png'</default>
       <summary>Image to use for drawing blocks</summary>
@@ -30,6 +35,11 @@
       <range min="-1" max="15"/>
       <summary>The difficulty of the game</summary>
       <description>How difficult the game is, 0 is a normal difficulty.</description>
+    </key>
+    <key name="reduce-base-row-bonus" type="b">
+      <default>true</default>
+      <summary>Reduce the base row scoring bonus</summary>
+      <description>When turned on, clearing the bottom row awards a bonus of 100 times the level times the number of rows cleared. When turned off, use the pre-April 2026 bonus of 2500 times the level times the number of rows cleared. Changes apply to new games.</description>
     </key>
     <key name="use-seed" type="b">
       <default>false</default>

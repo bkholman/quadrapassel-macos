@@ -220,7 +220,8 @@ def main():
                                   ("gtk4", "share/glib-2.0/schemas"),
                                   ("gtk4", "share/locale"),
                                   ("libadwaita", "share/locale"),
-                                  ("glib", "share/locale")):
+                                  ("glib", "share/locale"),
+                                  ("gdk-pixbuf", "share/locale")):
             prefix = Path(run("brew", "--prefix", formula, capture=True))
             bundler.copy_tree(prefix / relative, relative)
 
@@ -252,6 +253,10 @@ def main():
         make_icon(bundler.resources, work)
         bundler.copy_licenses()
         minimum = max(bundler.minimums, key=version_key)
+        languages = json.loads((ROOT / "data/languages.json").read_text())
+        localizations = [tag for code, _, tag in languages
+                         if code == "en" or (bundler.resources / "share/locale" / code /
+                                             "LC_MESSAGES/quadrapassel.mo").is_file()]
         info = {
             "CFBundleName": "Quadrapassel", "CFBundleDisplayName": "Quadrapassel",
             "CFBundleIdentifier": "org.gnome.Quadrapassel", "CFBundleExecutable": "quadrapassel",
@@ -259,6 +264,7 @@ def main():
             "CFBundleShortVersionString": project["version"], "CFBundleVersion": project["version"],
             "CFBundleIconFile": "Quadrapassel", "LSMinimumSystemVersion": minimum,
             "NSHighResolutionCapable": True, "NSPrincipalClass": "NSApplication",
+            "CFBundleDevelopmentRegion": "en", "CFBundleLocalizations": localizations,
             "NSHumanReadableCopyright": "Copyright © Quadrapassel contributors. GPL-3.0-or-later.",
         }
         with (app / "Contents/Info.plist").open("wb") as handle:

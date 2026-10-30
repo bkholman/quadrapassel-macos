@@ -263,6 +263,9 @@ public class Game : Object
     /* true if should pick difficult blocks to place */
     public bool pick_difficult_blocks = false;
 
+    /* Keep one scoring rule for the entire game, including simulated copies. */
+    public bool reduce_base_row_bonus { get; private set; default = true; }
+
     /* The current level */
     public int level {
         get {
@@ -335,10 +338,11 @@ public class Game : Object
     public signal void pause_changed ();
     public signal void complete ();
 
-    public Game (int lines = 20, int columns = 10, int difficulty = 0, int filled_lines = 0, int fill_prob = 5, bool pick_difficult_blocks = false)
+    public Game (int lines = 20, int columns = 10, int difficulty = 0, int filled_lines = 0, int fill_prob = 5, bool pick_difficult_blocks = false, bool reduce_base_row_bonus = true)
     {
         this.difficulty = difficulty;
         this.pick_difficult_blocks = pick_difficult_blocks;
+        this.reduce_base_row_bonus = reduce_base_row_bonus;
 
         blocks = new Block[columns, lines];
         /* Start with some shape_landed-filled spaces */
@@ -384,6 +388,7 @@ public class Game : Object
         g.score = score;
         g.difficulty = difficulty;
         g.pick_difficult_blocks = pick_difficult_blocks;
+        g.reduce_base_row_bonus = reduce_base_row_bonus;
         g.fast_move_direction = fast_move_direction;
         g.fast_forward = fast_forward;
         g.has_started = has_started;
@@ -931,7 +936,7 @@ public class Game : Object
         }
         /* You get a bonus for getting back to the base */
         if (base_line_destroyed)
-            score += 100 * level * n_lines;
+            score += (reduce_base_row_bonus ? 100 : 2500) * level * n_lines;
 
         /* Increase speed if level has changed */
         if (level != old_level)

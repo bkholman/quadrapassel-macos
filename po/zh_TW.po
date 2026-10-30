@@ -393,3 +393,15 @@ msgstr "日期"
 
 #~ msgid "_Quit"
 #~ msgstr "結束(_Q)"
+
+#: src/quadrapassel.vala
+msgid "System"
+msgstr "系統"
+
+#: src/quadrapassel.vala
+msgid "Language"
+msgstr "語言"
+
+#: src/quadrapassel.vala
+msgid "Restart Quadrapassel to apply language changes."
+msgstr "重新啟動 Quadrapassel 以套用語言變更。"

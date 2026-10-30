@@ -17,6 +17,7 @@ blueprints = custom_target('blueprints',
 quadrapassel_sources = [
     'vapi/config.vapi',
     'runtime-paths.vala',
+    'localization.vala',
     'adaptive-card.vala',
     'game-view.vala',
     'game.vala',
@@ -24,6 +25,7 @@ quadrapassel_sources = [
     'preview.vala',
     'quadrapassel.vala'
 ]
+quadrapassel_sources += language_data
 
 platform_dependencies = []
 platform_vala_args = []
@@ -34,7 +36,8 @@ if have_gamepad
     platform_vala_args += '--define=ENABLE_GAMEPAD'
 endif
 if is_macos
-    quadrapassel_sources += ['macos-support.c', 'vapi/macos-support.vapi']
+    quadrapassel_sources += ['macos-support.c', 'macos-localization.m', 'vapi/macos-support.vapi']
+    platform_dependencies += dependency('appleframeworks', modules: ['Foundation'])
     platform_vala_args += '--define=MACOS'
     # Leave room for the packager to rewrite library install names.
     platform_link_args += '-Wl,-headerpad_max_install_names'

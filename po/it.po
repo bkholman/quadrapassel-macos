@@ -395,3 +395,15 @@ msgstr "_Ok"
 #: src/score-dialog.vala:48
 msgid "Date"
 msgstr "Data"
+
+#: src/quadrapassel.vala
+msgid "System"
+msgstr "Sistema"
+
+#: src/quadrapassel.vala
+msgid "Language"
+msgstr "Lingua"
+
+#: src/quadrapassel.vala
+msgid "Restart Quadrapassel to apply language changes."
+msgstr "Riavvia Quadrapassel per applicare la modifica della lingua."

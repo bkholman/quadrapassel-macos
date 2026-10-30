@@ -413,3 +413,15 @@ msgstr "日付"
 
 #~ msgid "GNOME Games web site"
 #~ msgstr "GNOME ゲーム集のウェブサイト"
+
+#: src/quadrapassel.vala
+msgid "System"
+msgstr "システム"
+
+#: src/quadrapassel.vala
+msgid "Language"
+msgstr "言語"
+
+#: src/quadrapassel.vala
+msgid "Restart Quadrapassel to apply language changes."
+msgstr "言語の変更を適用するには、Quadrapassel を再起動してください。"

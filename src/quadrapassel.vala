@@ -34,6 +34,10 @@ public class Quadrapassel : Adw.Application
 
     /* Game scores */
     private Games.Scores.Context context;
+    private bool save_current_score = true;
+    private bool score_save_pending = false;
+    private bool scoring_change_pending = false;
+    private Adw.PreferencesDialog? preferences_dialog = null;
 
     /* GridFrame for the game */
     private Games.GridFrame game_aspect;
@@ -130,9 +134,21 @@ public class Quadrapassel : Adw.Application
         { "quit", quit_cb }
     };
 
-    public Quadrapassel ()
+    public Quadrapassel (Settings settings)
     {
         Object (application_id: APP_ID, flags: ApplicationFlags.DEFAULT_FLAGS, resource_base_path: "/org/gnome/Quadrapassel");
+        this.settings = settings;
+    }
+
+    private static Settings create_settings ()
+    {
+#if MACOS
+        var preferences_file = Path.build_filename (Environment.get_user_data_dir (), APP_ID, "preferences.ini");
+        return new Settings.with_backend (APP_ID,
+            SettingsBackend.keyfile_settings_backend_new (preferences_file, "/", null));
+#else
+        return new Settings (APP_ID);
+#endif
     }
 
     protected override void startup ()
@@ -158,10 +174,6 @@ public class Quadrapassel : Adw.Application
         set_accels_for_action ("app.preferences", {"<Meta>comma"});
         set_accels_for_action ("app.quit", {"<Meta>q"});
         set_accels_for_action ("app.shortcuts", {"<Meta>question"});
-        var preferences_file = Path.build_filename (Environment.get_user_data_dir (), APP_ID, "preferences.ini");
-        settings = new Settings.with_backend (APP_ID,
-            SettingsBackend.keyfile_settings_backend_new (preferences_file, "/", null));
-
         var close_action = new SimpleAction ("close", null);
         close_action.activate.connect (() => { if (active_window != null) active_window.close (); });
         add_action (close_action);
@@ -179,8 +191,6 @@ public class Quadrapassel : Adw.Application
         menubar.append_submenu (_("_Game"), game_menu);
         menubar.append_submenu (_("_Help"), help_menu);
         set_menubar (menubar);
-#else
-        settings = new Settings (APP_ID);
 #endif
     }
 
@@ -318,17 +328,10 @@ public class Quadrapassel : Adw.Application
         level_label = level_card.info;
         stats_box.append (level_card);
 
-        context = new Games.Scores.Context ("quadrapassel",
-                                            /* Label on the scores dialog */
-                                            _("Difficulty"),
-                                            create_category_from_key,
-                                            Games.Scores.Style.POINTS_GREATER_IS_BETTER,
-                                            APP_ID,
-                                            -1,
-                                            new Games.Scores.HistoryFileImporter (parse_old_score));
+        context = create_scores_context (true);
 #if MACOS
         // The support library initializes its gettext domain when its class loads.
-        Intl.bindtextdomain (GETTEXT_PACKAGE + "_libgnome-games-support", RuntimePaths.locale ());
+        Localization.bind_domains (RuntimePaths.locale ());
 #endif
 
 #if ENABLE_GAMEPAD
@@ -353,7 +356,7 @@ public class Quadrapassel : Adw.Application
     protected override void shutdown ()
     {
         /* Record the score if the game isn't over. */
-        if (game != null && !game.game_over && game.score > 0)
+        if (save_current_score && game != null && !game.game_over && game.score > 0)
         {
             var category_key = game.difficulty.to_string ();
             if (game.pick_difficult_blocks)
@@ -473,12 +476,51 @@ public class Quadrapassel : Adw.Application
 
     private void preferences_cb ()
     {
-        var preferences_dialog = new Adw.PreferencesDialog ();
+        // A score dialog may still be waiting to write its score to disk.
+        if (score_save_pending)
+            return;
+        if (preferences_dialog != null)
+        {
+            preferences_dialog.present (window);
+            return;
+        }
+        preferences_dialog = new Adw.PreferencesDialog ();
+        preferences_dialog.closed.connect (() => { preferences_dialog = null; });
         preferences_dialog.set_title (_("Preferences"));
 
         var appearance_page = new Adw.PreferencesPage ();
         appearance_page.title = _("Appearance");
         appearance_page.icon_name = "preferences-desktop-appearance-symbolic";
+
+        var language_group = new Adw.PreferencesGroup ();
+        language_group.set_description (_("Restart Quadrapassel to apply language changes."));
+        var languages = Localization.available (RuntimePaths.locale ());
+        var language_names = new Gtk.StringList (null);
+        language_names.append (_("System"));
+        uint selected_language = 0;
+        for (int i = 0; i < languages.length; i++)
+        {
+            language_names.append (languages[i].name);
+            if (settings.get_string ("language") == languages[i].code)
+                selected_language = i + 1;
+        }
+        var language_row = new Adw.ComboRow ();
+        language_row.set_title (_("Language"));
+        language_row.set_model (language_names);
+        language_row.set_expression (new Gtk.PropertyExpression (typeof (Gtk.StringObject), null, "string"));
+        language_row.set_enable_search (true);
+        language_row.set_selected (selected_language);
+        language_row.notify["selected"].connect (() => {
+            uint index = language_row.selected;
+            if (index > languages.length)
+                return;
+            string choice = index == 0 ? "system" : languages[index - 1].code;
+            settings.set_string ("language", choice);
+            Settings.sync ();
+            preferences_dialog.add_toast (new Adw.Toast (_("Restart Quadrapassel to apply language changes.")));
+        });
+        language_group.add (language_row);
+        appearance_page.add (language_group);
 
         var theme_preview_frame = new Games.GridFrame (5, 5);
         theme_preview_frame.hexpand = true;
@@ -546,6 +588,20 @@ public class Quadrapassel : Adw.Application
 
         game_page.add (difficulty_group);
 
+        var scoring_group = new Adw.PreferencesGroup ();
+        scoring_group.set_title (_("Scoring"));
+        scoring_group.set_description (_("* If turned off, scoring reverts to the pre-April 2026 rules. Changes apply to new games."));
+
+        var scoring_toggle = new Adw.SwitchRow ();
+        scoring_toggle.set_title (_("Scoring: reduce the base row bonus *"));
+        scoring_toggle.set_active (settings.get_boolean ("reduce-base-row-bonus"));
+        scoring_toggle.notify["active"].connect (() => {
+            if (!scoring_change_pending && scoring_toggle.active != settings.get_boolean ("reduce-base-row-bonus"))
+                change_scoring_rules.begin (scoring_toggle);
+        });
+        scoring_group.add (scoring_toggle);
+        game_page.add (scoring_group);
+
         var in_game_group = new Adw.PreferencesGroup ();
         in_game_group.set_title (_("In-Game"));
         in_game_group.set_description (_("Change the experience of playing a game"));
@@ -606,6 +662,75 @@ public class Quadrapassel : Adw.Application
         game_page.add (in_game_group);
         preferences_dialog.add (game_page);
         preferences_dialog.present (window);
+    }
+
+    private Games.Scores.Context create_scores_context (bool import_history = false)
+    {
+        return new Games.Scores.Context ("quadrapassel",
+                                        /* Label on the scores dialog */
+                                        _("Difficulty"),
+                                        create_category_from_key,
+                                        Games.Scores.Style.POINTS_GREATER_IS_BETTER,
+                                        APP_ID,
+                                        -1,
+                                        import_history ? new Games.Scores.HistoryFileImporter (parse_old_score) : null);
+    }
+
+    private async void change_scoring_rules (Adw.SwitchRow toggle)
+    {
+        scoring_change_pending = true;
+        toggle.sensitive = false;
+        bool reduce_bonus = toggle.active;
+
+        var body = _("Your scoreboard could contain scores calculated using two different scoring rules. Would you like to reset the scoreboard? Resetting clears all saved scores for every difficulty.");
+        if (game != null && !game.game_over)
+            body += "\n\n" + _("The new rules apply to your next game. If you reset the scoreboard, your current game can continue, but its score will not be saved.");
+
+        var dialog = new Adw.AlertDialog (_("Reset the Scoreboard?"), body);
+        dialog.add_response ("cancel", _("_Cancel"));
+        dialog.add_response ("keep", _("_Keep Scores"));
+        dialog.add_response ("reset", _("_Reset Scoreboard"));
+        dialog.default_response = "keep";
+        dialog.close_response = "cancel";
+        dialog.set_response_appearance ("reset", Adw.ResponseAppearance.DESTRUCTIVE);
+
+        var response = yield dialog.choose (toggle, null);
+        if (response == "keep" || response == "reset")
+        {
+            bool changed = true;
+            if (response == "reset")
+            {
+                // Prevent quitting during the reset from saving the old game again.
+                bool previously_saved = save_current_score;
+                save_current_score = false;
+                try
+                {
+                    // delete_scores() reports NOT_FOUND when no scores directory exists.
+                    if (context.has_scores ())
+                        yield context.delete_scores ();
+                }
+                catch (Error e)
+                {
+                    warning ("Failed to reset scoreboard: %s", e.message);
+                    // The library clears its cache before deleting files. Reload any
+                    // surviving scores instead of showing a misleading empty scoreboard.
+                    context = create_scores_context ();
+                    save_current_score = previously_saved;
+                    changed = false;
+                    var error_dialog = new Adw.AlertDialog (_("Could Not Reset the Scoreboard"),
+                        _("The scoring setting has not changed. Some scores may already have been removed. Please check that your scores folder is writable and try again."));
+                    error_dialog.add_response ("close", _("_Close"));
+                    yield error_dialog.choose (toggle, null);
+                }
+            }
+            if (changed)
+                settings.set_boolean ("reduce-base-row-bonus", reduce_bonus);
+        }
+
+        // Restore the switch after cancellation or failure without opening another prompt.
+        toggle.active = settings.get_boolean ("reduce-base-row-bonus");
+        toggle.sensitive = true;
+        scoring_change_pending = false;
     }
 
     private Gtk.Widget theme_update (string theme_name, Gtk.Widget theme_preview_widget)
@@ -979,6 +1104,8 @@ public class Quadrapassel : Adw.Application
 
     private void new_game ()
     {
+        if (scoring_change_pending)
+            return;
         if (game != null)
         {
             game.stop ();
@@ -986,6 +1113,7 @@ public class Quadrapassel : Adw.Application
         }
 
         pause_requested = false;
+        save_current_score = true;
 
         if (settings.get_boolean ("use-seed"))
             Random.set_seed (settings.get_uint ("seed"));
@@ -1001,7 +1129,8 @@ public class Quadrapassel : Adw.Application
                          settings.get_int ("difficulty") /* The starting level */,
                          pre_filled,
                          5 /* line fill density  */,
-                         settings.get_boolean ("pick-difficult-blocks"));
+                         settings.get_boolean ("pick-difficult-blocks"),
+                         settings.get_boolean ("reduce-base-row-bonus"));
 
         game.pause_changed.connect (pause_changed_cb);
         game.shape_landed.connect (shape_landed_cb);
@@ -1074,13 +1203,15 @@ public class Quadrapassel : Adw.Application
         pause_play_button.tooltip_text = _("Start the game");
         new_game_button.set_sensitive (false);
 
-        if (game.score > 0)
+        if (save_current_score && game.score > 0)
         {
+            score_save_pending = true;
             var category_key = game.difficulty.to_string ();
             if (game.pick_difficult_blocks)
                 category_key = category_key + "-difficult";
 
             context.add_score_full.begin (game.score, create_category_from_key (category_key), get_game_extra_info (), window, true, null, (object, result) => {
+                score_save_pending = false;
                 try
                 {
                     var score_result = context.add_score_full.end (result).action;
@@ -1230,6 +1361,8 @@ public class Quadrapassel : Adw.Application
 
     private void scores_cb ()
     {
+        if (scoring_change_pending)
+            return;
         var category_key = settings.get_int ("difficulty").to_string ();
         if (settings.get_boolean ("pick-difficult-blocks"))
             category_key = category_key + "-difficult";
@@ -1240,12 +1373,14 @@ public class Quadrapassel : Adw.Application
     public static int main (string[] args)
     {
         RuntimePaths.initialize ();
-        Intl.setlocale (LocaleCategory.ALL, "");
-        Intl.bindtextdomain (GETTEXT_PACKAGE, RuntimePaths.locale ());
-        Intl.bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-        Intl.textdomain (GETTEXT_PACKAGE);
+        var settings = create_settings ();
+        Localization.initialize (settings.get_string ("language"), RuntimePaths.locale ());
+        Gtk.disable_setlocale ();
+        Adw.init ();
+        Localization.bind_domains (RuntimePaths.locale ());
+        Gtk.Widget.set_default_direction (Localization.is_right_to_left () ? Gtk.TextDirection.RTL : Gtk.TextDirection.LTR);
 
-        var app = new Quadrapassel ();
+        var app = new Quadrapassel (settings);
         return app.run (args);
     }
 }

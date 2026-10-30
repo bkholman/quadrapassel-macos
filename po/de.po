@@ -438,3 +438,59 @@ msgstr "Datum"
 
 #~ msgid "_Quit"
 #~ msgstr "_Beenden"
+
+#: src/quadrapassel.vala
+msgid "System"
+msgstr "System"
+
+#: src/quadrapassel.vala
+msgid "Language"
+msgstr "Sprache"
+
+#: src/quadrapassel.vala
+msgid "Restart Quadrapassel to apply language changes."
+msgstr "Starten Sie Quadrapassel neu, um die Sprachänderung anzuwenden."
+
+#: src/quadrapassel.vala
+msgid "Scoring"
+msgstr "Punktewertung"
+
+#: src/quadrapassel.vala
+msgid "* If turned off, scoring reverts to the pre-April 2026 rules. Changes apply to new games."
+msgstr "* Wenn ausgeschaltet, gelten die Wertungsregeln von vor April 2026. Änderungen gelten für neue Spiele."
+
+#: src/quadrapassel.vala
+msgid "Scoring: reduce the base row bonus *"
+msgstr "Wertung: Bonus für die unterste Reihe reduzieren *"
+
+#: src/quadrapassel.vala
+msgid "Your scoreboard could contain scores calculated using two different scoring rules. Would you like to reset the scoreboard? Resetting clears all saved scores for every difficulty."
+msgstr "Ihre Bestenliste könnte Punktzahlen enthalten, die nach zwei verschiedenen Regeln berechnet wurden. Möchten Sie die Bestenliste zurücksetzen? Dabei werden alle gespeicherten Punktzahlen für alle Schwierigkeitsgrade gelöscht."
+
+#: src/quadrapassel.vala
+msgid "The new rules apply to your next game. If you reset the scoreboard, your current game can continue, but its score will not be saved."
+msgstr "Die neuen Regeln gelten ab dem nächsten Spiel. Wenn Sie die Bestenliste zurücksetzen, können Sie das aktuelle Spiel fortsetzen, aber seine Punktzahl wird nicht gespeichert."
+
+#: src/quadrapassel.vala
+msgid "Reset the Scoreboard?"
+msgstr "Bestenliste zurücksetzen?"
+
+#: src/quadrapassel.vala
+msgid "_Keep Scores"
+msgstr "Punktzahlen _behalten"
+
+#: src/quadrapassel.vala
+msgid "_Reset Scoreboard"
+msgstr "Bestenliste _zurücksetzen"
+
+#: src/quadrapassel.vala
+msgid "_Cancel"
+msgstr "_Abbrechen"
+
+#: src/quadrapassel.vala
+msgid "Could Not Reset the Scoreboard"
+msgstr "Bestenliste konnte nicht zurückgesetzt werden"
+
+#: src/quadrapassel.vala
+msgid "The scoring setting has not changed. Some scores may already have been removed. Please check that your scores folder is writable and try again."
+msgstr "Die Wertungseinstellung wurde nicht geändert. Einige Punktzahlen wurden möglicherweise bereits entfernt. Prüfen Sie, ob Ihr Punkteordner beschreibbar ist, und versuchen Sie es erneut."

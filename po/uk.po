@@ -661,3 +661,15 @@ msgstr ""
 
 #~ msgid "_About"
 #~ msgstr "_Про програму"
+
+#: src/quadrapassel.vala
+msgid "System"
+msgstr "Системна"
+
+#: src/quadrapassel.vala
+msgid "Language"
+msgstr "Мова"
+
+#: src/quadrapassel.vala
+msgid "Restart Quadrapassel to apply language changes."
+msgstr "Перезапустіть Quadrapassel, щоб застосувати зміну мови."

@@ -19,6 +19,9 @@ i18n = import('i18n')
 
 cc = meson.get_compiler('c')
 is_macos = host_machine.system() == 'darwin'
+if is_macos
+  add_languages('objc', native: false)
+endif
 
 gtk_dependency = dependency('gtk4', version: '>= 4.4')
 libadwaita_dependency = dependency('libadwaita-1', version: '>= 1.8')
@@ -54,9 +57,50 @@ conf.set_quoted ('LOCALEDIR', localedir)
 configure_file(output: 'config.h', configuration: conf)
 config_h_dir = include_directories('.')
 
+python = import('python').find_installation()
+language_data = custom_target('language-data',
+  input: ['data/languages.json', 'po/LINGUAS'],
+  output: 'language-data.vala',
+  command: [python, files('build-aux/generate-languages.py'), '@INPUT0@', '@INPUT1@', '@OUTPUT@'],
+)
+
 subdir('data')
 subdir('po')
 subdir('src')
+
+scoring_tests = executable('test-scoring',
+    ['tests/test-scoring.vala', 'src/game.vala'],
+    dependencies: [dependency('glib-2.0'), dependency('gobject-2.0'), libm_dependency],
+)
+test('game-scoring', scoring_tests)
+
+scoreboard_tests = executable('test-scoreboard',
+    'tests/test-scoreboard.vala',
+    dependencies: [gtk_dependency, libadwaita_dependency, libgnome_games_support_dependency],
+)
+test('scoreboard-reset', scoreboard_tests)
+
+localization_tests = executable('test-localization',
+    ['tests/test-localization.vala', 'src/localization.vala', 'src/vapi/config.vapi', language_data],
+    c_args: ['-include', 'config.h'],
+    include_directories: config_h_dir,
+    dependencies: [dependency('gio-2.0')],
+)
+test('language-selection', localization_tests)
+
+if is_macos
+    executable('test-localization-runtime',
+        ['tests/localization-runtime.vala', 'src/localization.vala', 'src/runtime-paths.vala',
+         'src/macos-support.c', 'src/macos-localization.m', 'src/vapi/config.vapi',
+         'src/vapi/macos-support.vapi', language_data],
+        c_args: ['-include', 'config.h'],
+        vala_args: ['--define=MACOS'],
+        link_args: ['-Wl,-headerpad_max_install_names'],
+        include_directories: [config_h_dir, include_directories('src')],
+        dependencies: [gtk_dependency, libadwaita_dependency,
+                       dependency('appleframeworks', modules: ['Foundation'])],
+    )
+endif
 
 gnome.post_install(
   gtk_update_icon_cache: true,
