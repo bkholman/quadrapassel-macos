@@ -18,13 +18,25 @@ gnome = import('gnome')
 i18n = import('i18n')
 
 cc = meson.get_compiler('c')
+is_macos = host_machine.system() == 'darwin'
 
 gtk_dependency = dependency('gtk4', version: '>= 4.4')
 libadwaita_dependency = dependency('libadwaita-1', version: '>= 1.8')
 libgnome_games_support = subproject ('libgnome-games-support',
 	    		             default_options: [ 'superproject_name=quadrapassel', 'sounds=true' ])
 libgnome_games_support_dependency = libgnome_games_support.get_variable ('lggs_dependency')
-manette_dependency = dependency('manette-0.2', version: '>= 0.2.10')
+gamepad_option = get_option('gamepad')
+if host_machine.system() == 'linux'
+  # Preserve the existing Linux default; -Dgamepad=disabled allows keyboard-only builds.
+  manette_dependency = dependency('manette-0.2', version: '>= 0.2.10',
+                                  required: not gamepad_option.disabled())
+  have_gamepad = not gamepad_option.disabled()
+else
+  if gamepad_option.enabled()
+    error('Gamepad support currently requires Linux. Use -Dgamepad=disabled.')
+  endif
+  have_gamepad = false
+endif
 libm_dependency = cc.find_library('m', required : true)
 
 localedir = join_paths(get_option('prefix'), get_option('localedir'))
@@ -49,5 +61,5 @@ subdir('src')
 gnome.post_install(
   gtk_update_icon_cache: true,
   glib_compile_schemas: true,
-  update_desktop_database: true,
+  update_desktop_database: not is_macos,
 )

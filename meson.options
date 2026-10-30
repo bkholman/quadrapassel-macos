@@ -8,3 +8,6 @@ option(
   ],
   value: 'default',
 )
+
+option('gamepad', type: 'feature', value: 'auto',
+       description: 'Game controller support (Linux only; disabled on macOS)')

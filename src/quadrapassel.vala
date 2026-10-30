@@ -71,6 +71,7 @@ public class Quadrapassel : Adw.Application
     private Gtk.Button pause_play_button;
     private Gtk.Button new_game_button;
 
+#if ENABLE_GAMEPAD
     private Manette.Monitor manette_monitor;
     private const uint16[] MANETTE_BUTTONS = {
         InputEventCode.BTN_A,
@@ -92,6 +93,7 @@ public class Quadrapassel : Adw.Application
         InputEventCode.BTN_DPAD_RIGHT,
     };
     private HashTable<uint16, bool> buttons_state = new HashTable<uint16, bool> (direct_hash, direct_equal);
+#endif
 
     private const uint[] KEYS = {
         Gdk.Key.Return,
@@ -150,7 +152,36 @@ public class Quadrapassel : Adw.Application
         set_accels_for_action ("window.close", {"<Primary>w"});
         pause_action = lookup_action ("pause") as SimpleAction;
 
+#if MACOS
+        // GTK4's <Primary> is Control; Command is represented by Meta on macOS.
+        set_accels_for_action ("app.new-game", {"<Meta>n"});
+        set_accels_for_action ("app.preferences", {"<Meta>comma"});
+        set_accels_for_action ("app.quit", {"<Meta>q"});
+        set_accels_for_action ("app.shortcuts", {"<Meta>question"});
+        var preferences_file = Path.build_filename (Environment.get_user_data_dir (), APP_ID, "preferences.ini");
+        settings = new Settings.with_backend (APP_ID,
+            SettingsBackend.keyfile_settings_backend_new (preferences_file, "/", null));
+
+        var close_action = new SimpleAction ("close", null);
+        close_action.activate.connect (() => { if (active_window != null) active_window.close (); });
+        add_action (close_action);
+        set_accels_for_action ("app.close", {"<Meta>w"});
+
+        var game_menu = new GLib.Menu ();
+        game_menu.append (_("_New Game"), "app.new-game");
+        game_menu.append (_("_Pause"), "app.pause");
+        game_menu.append (_("_Scores"), "app.scores");
+        var help_menu = new GLib.Menu ();
+        help_menu.append (_("_Rules"), "app.rules");
+        help_menu.append (_("_Keyboard Shortcuts"), "app.shortcuts");
+        help_menu.append (_("_About Quadrapassel"), "app.about");
+        var menubar = new GLib.Menu ();
+        menubar.append_submenu (_("_Game"), game_menu);
+        menubar.append_submenu (_("_Help"), help_menu);
+        set_menubar (menubar);
+#else
         settings = new Settings (APP_ID);
+#endif
     }
 
     private void create_window ()
@@ -295,7 +326,12 @@ public class Quadrapassel : Adw.Application
                                             APP_ID,
                                             -1,
                                             new Games.Scores.HistoryFileImporter (parse_old_score));
+#if MACOS
+        // The support library initializes its gettext domain when its class loads.
+        Intl.bindtextdomain (GETTEXT_PACKAGE + "_libgnome-games-support", RuntimePaths.locale ());
+#endif
 
+#if ENABLE_GAMEPAD
         foreach (unowned var button in MANETTE_BUTTONS)
             buttons_state[button] = false;
 
@@ -305,6 +341,7 @@ public class Quadrapassel : Adw.Application
         Manette.Device manette_device = null;
         while (manette_iterator.next (out manette_device))
             manette_device_connected_cb (manette_device);
+#endif
 
         foreach (unowned var key in KEYS)
             keys_state[key] = false;
@@ -344,6 +381,7 @@ public class Quadrapassel : Adw.Application
         settings.set_int ("window-width", width);
         settings.set_int ("window-height", height);
         settings.set_boolean ("window-is-maximized", window.maximized);
+        Settings.sync ();
     }
 
     protected override void activate ()
@@ -595,6 +633,7 @@ public class Quadrapassel : Adw.Application
         base.quit ();
     }
 
+#if ENABLE_GAMEPAD
     private void manette_device_connected_cb (Manette.Device manette_device)
     {
         manette_device.button_press_event.connect (manette_button_press_event_cb);
@@ -738,11 +777,18 @@ public class Quadrapassel : Adw.Application
             game.move_left ();
     }
 
+#endif
+
     private bool key_press_event_cb (Gtk.EventControllerKey controller,
                                      uint keyval,
                                      uint keycode,
                                      Gdk.ModifierType state)
     {
+        /* Let application shortcuts (including Command-Q on Mac) reach GTK. */
+        if ((state & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.ALT_MASK |
+                      Gdk.ModifierType.META_MASK | Gdk.ModifierType.SUPER_MASK)) != 0)
+            return false;
+
         if (game != null)
         {
             if (game.game_over && keyval == Gdk.Key.Return)
@@ -1192,8 +1238,9 @@ public class Quadrapassel : Adw.Application
 
     public static int main (string[] args)
     {
+        RuntimePaths.initialize ();
         Intl.setlocale (LocaleCategory.ALL, "");
-        Intl.bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+        Intl.bindtextdomain (GETTEXT_PACKAGE, RuntimePaths.locale ());
         Intl.bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
         Intl.textdomain (GETTEXT_PACKAGE);
 

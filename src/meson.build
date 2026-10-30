@@ -5,13 +5,18 @@ blueprints = custom_target('blueprints',
         'rules-dialog.blp',
         'shortcuts-dialog.blp'
     ),
-    output: '.',
-    command: [find_program('blueprint-compiler'), 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],
+    output: [
+        'adaptive-card.ui',
+        'more-info-button.ui',
+        'rules-dialog.ui',
+        'shortcuts-dialog.ui',
+    ],
+    command: [find_program('blueprint-compiler'), 'batch-compile', meson.current_build_dir(), '@CURRENT_SOURCE_DIR@', '@INPUT@'],
 )
 
 quadrapassel_sources = [
     'vapi/config.vapi',
-    'vapi/input-event-codes.vapi',
+    'runtime-paths.vala',
     'adaptive-card.vala',
     'game-view.vala',
     'game.vala',
@@ -19,6 +24,21 @@ quadrapassel_sources = [
     'preview.vala',
     'quadrapassel.vala'
 ]
+
+platform_dependencies = []
+platform_vala_args = []
+platform_link_args = []
+if have_gamepad
+    quadrapassel_sources += 'vapi/input-event-codes.vapi'
+    platform_dependencies += manette_dependency
+    platform_vala_args += '--define=ENABLE_GAMEPAD'
+endif
+if is_macos
+    quadrapassel_sources += ['macos-support.c', 'vapi/macos-support.vapi']
+    platform_vala_args += '--define=MACOS'
+    # Leave room for the packager to rewrite library install names.
+    platform_link_args += '-Wl,-headerpad_max_install_names'
+endif
 
 resources_conf = configuration_data()
 resources_conf.set('app-id', app_id)
@@ -41,15 +61,15 @@ executable(meson.project_name(),
     c_args: [
         '-include', 'config.h'
     ],
-    vala_args: [
+    vala_args: platform_vala_args + [
         '--target-glib', '2.44',
         '--vapidir', join_paths(meson.current_source_dir(), 'vapi')
     ],
-    dependencies: [
+    link_args: platform_link_args,
+    dependencies: platform_dependencies + [
         gtk_dependency,
         libadwaita_dependency,
         libgnome_games_support_dependency,
-        manette_dependency,
         libm_dependency
     ]
 )

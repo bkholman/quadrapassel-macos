@@ -24,6 +24,8 @@ configure_file(
   configuration: gschema_conf
 )
 
+# Linux desktop integration is not used by the macOS application bundle.
+if not is_macos
 # D-Bus service file
 service_conf = configuration_data()
 service_conf.set('app-id', app_id)
@@ -83,6 +85,8 @@ metainfo_file = i18n.merge_file(
     install: true,
     install_dir: join_paths(get_option('datadir'), 'metainfo')
 )
+
+endif
 
 # Install sounds
 install_data(

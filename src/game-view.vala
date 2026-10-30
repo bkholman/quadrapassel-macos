@@ -125,7 +125,7 @@ public class GameView : Gtk.Widget {
 
     private void play_sound (string name)
     {
-        if (!mute)
+        if (!mute && sounds != null)
         {
             sounds.play (name + ".ogg");
         }
@@ -148,7 +148,7 @@ public class GameView : Gtk.Widget {
 
         try
         {
-            sounds = new Games.Sounds (SOUND_DIRECTORY);
+            sounds = new Games.Sounds (RuntimePaths.sounds ());
         }
         catch (Error e)
         {
