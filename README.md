@@ -10,6 +10,10 @@ gameplay features, themes, sounds, and Linux desktop integration.
 
 ## macOS app
 
+Download the signed and notarized DMG from
+[GitHub Releases](https://github.com/bkholman/quadrapassel/releases/latest),
+open it, and drag **Quadrapassel** to **Applications**.
+
 - A self-contained `Quadrapassel.app` runs with the native macOS display backend
   and keeps the GNOME-style interface. Homebrew and the build tools are not needed
   to run the packaged app.
@@ -114,8 +118,10 @@ SHA-256 checksum. Interrupted notarization can be resumed.
 See [Signed DMG releases](MACOS.md#signed-dmg-releases) for machine setup,
 build-number selection, signing, notarization, and verification commands.
 Developer keys and notarization credentials stay in Keychain; local signing
-configuration and generated artifacts are ignored by Git. The scripts do not
-publish releases automatically.
+configuration and generated artifacts are ignored by Git. Building and signing
+do not publish automatically; the separate
+[GitHub publishing script](MACOS.md#publish-a-github-release) uploads a verified
+DMG and checksum and can publish them as a release.
 
 The [validation instructions](MACOS.md#validation) cover scoring, scoreboard
 reset, language selection, and bundle checks for relocated apps, persistent

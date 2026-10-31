@@ -289,6 +289,48 @@ instead of silently replacing a published release with rebuilt bytes.
 References: Apple's [distribution signing](https://developer.apple.com/documentation/xcode/creating-distribution-signed-code-for-the-mac/)
 and [notarization workflow](https://developer.apple.com/documentation/security/customizing-the-notarization-workflow).
 
+## Publish a GitHub release
+
+The separate `build-aux/macos/publish-release.py` script uploads an existing,
+completed notarized release. Install GitHub CLI and sign in once:
+
+```sh
+brew install gh
+gh auth login --hostname github.com --git-protocol ssh --web --skip-ssh-key
+```
+
+Follow the browser device-code flow as the repository owner. GitHub CLI manages
+the login outside this checkout; do not put a GitHub token in source files or
+release notes. Git push over SSH alone does not authorize release uploads.
+
+For the existing 51.0 build 6 installer:
+
+```sh
+python3 build-aux/macos/publish-release.py \
+  dist/releases/Quadrapassel-51.0-6-arm64 \
+  --repo bkholman/quadrapassel \
+  --target 9099f8c981a97416e0282c1293c288682ee3a0e6 \
+  --notes-file releases/macos-51.0-6.md \
+  --publish
+```
+
+For each new release, supply its completed release directory, the exact source
+commit used to build it (already pushed to GitHub), and a matching notes file.
+The script derives the tag `macos-VERSION-BUILD` from the app metadata. Supply
+your own `OWNER/REPO` when publishing from another fork.
+
+The script checks the checksum, notarization, signatures, Gatekeeper acceptance,
+DMG contents, and source commit before uploading. It creates a draft, uploads
+only the DMG and checksum, downloads both to verify their SHA-256 digests, and
+then publishes when `--publish` is supplied. GitHub also provides source archives
+for the release tag. Local configuration and Apple submission logs are not uploaded.
+
+Use `--check` instead of `--publish` to validate without changing GitHub. Omit
+both flags to leave a draft. Repeating the same command resumes missing uploads
+or verifies an already published release; it never replaces an existing asset
+or moves a tag. Conflicting metadata or assets require review. A local
+`github-release.json` receipt is saved alongside the ignored release artifacts.
+
 ## Licensing
 
 Quadrapassel's GPL-3.0-or-later license and existing author credits are retained.
