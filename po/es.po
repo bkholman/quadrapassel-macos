@@ -427,12 +427,12 @@ msgid "Scoring"
 msgstr "Puntuación"
 
 #: src/quadrapassel.vala
-msgid "* If turned off, scoring reverts to the pre-April 2026 rules. Changes apply to new games."
-msgstr "* Si se desactiva, la puntuación vuelve a las reglas anteriores a abril de 2026. Los cambios se aplican a las partidas nuevas."
+msgid "Classic uses the scoring rules from version 40.2. Changes apply to new games."
+msgstr "Clásica utiliza las reglas de puntuación de la versión 40.2. Los cambios se aplican a las partidas nuevas."
 
 #: src/quadrapassel.vala
-msgid "Scoring: reduce the base row bonus *"
-msgstr "Puntuación: reducir la bonificación de la fila inferior *"
+msgid "Scoring rules"
+msgstr "Reglas de puntuación"
 
 #: src/quadrapassel.vala
 msgid "Your scoreboard could contain scores calculated using two different scoring rules. Would you like to reset the scoreboard? Resetting clears all saved scores for every difficulty."
@@ -465,3 +465,16 @@ msgstr "No se pudo restablecer la tabla de puntuaciones"
 #: src/quadrapassel.vala
 msgid "The scoring setting has not changed. Some scores may already have been removed. Please check that your scores folder is writable and try again."
 msgstr "No se ha cambiado la configuración de puntuación. Es posible que ya se hayan eliminado algunos resultados. Compruebe que se puede escribir en la carpeta de puntuaciones e inténtelo de nuevo."
+
+#: src/quadrapassel.vala
+msgid "Modern"
+msgstr "Moderna"
+
+#: src/quadrapassel.vala
+msgid "Classic (40.2)"
+msgstr "Clásica (40.2)"
+
+#: src/rules-dialog.blp
+msgctxt "game rules"
+msgid "Clearing the bottom row adds a bonus. Modern scoring awards <i>100 × level × rows destroyed</i>. Classic (40.2) awards <i>10000 × level</i>, regardless of the number of rows destroyed. Choose the scoring rules in Preferences; changes apply to new games."
+msgstr "Eliminar la fila inferior añade una bonificación. La puntuación moderna otorga <i>100 × nivel × filas eliminadas</i>. Clásica (40.2) otorga <i>10000 × nivel</i>, independientemente del número de filas eliminadas. Elija las reglas de puntuación en Preferencias; los cambios se aplican a las partidas nuevas."

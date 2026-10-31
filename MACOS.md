@@ -84,14 +84,19 @@ The app resolves resources relative to its executable, including when renamed or
 moved. Image-loader cache files are written under GLib's user cache directory,
 outside the signed app bundle.
 
-In **Preferences → Game → Scoring**, **Scoring: reduce the base row bonus** is
-enabled by default. When a clear includes the bottom row, the bonus is
-`100 × level × rows cleared`. Turning it off restores the rules immediately
-before April 2026: `2500 × level × rows cleared`. This differs from version 40.2,
-which awarded a flat `10000 × level` bottom-row bonus. Regular line-clear points
-are unchanged.
+In **Preferences → Game → Scoring → Scoring rules**, choose **Modern** (the default)
+or **Classic (40.2)**. When a clear includes the bottom row, Modern adds
+`100 × level × rows cleared`; Classic adds a flat `10000 × level`, regardless of
+how many rows were cleared. Regular line-clear points are unchanged. Classic
+matches version 40.2's points for the same clear at the same level; newer gameplay
+features and difficulty settings remain available.
 
-Changing the switch offers **Keep Scores**, **Reset Scoreboard**, or **Cancel**.
+The earlier bonus switch's saved preference carries over: On selects Modern and
+Off selects Classic. The intermediate pre-April 2026 formula is no longer offered.
+Existing scores are retained unless you choose to reset them; scores earned under
+that intermediate formula remain in the scoreboard too.
+
+Changing the scoring rules offers **Keep Scores**, **Reset Scoreboard**, or **Cancel**.
 Reset clears scores for every difficulty, including imported old scores; keeping
 them permits scores from both rules in the same scoreboard. Cancel leaves the
 setting and scores unchanged. The selected rule applies to new games. A running

@@ -22,12 +22,12 @@ private async void check_reset () throws Error
     assert_cmpuint (context.get_categories ().length, CompareOperator.EQ, 0);
 
     // A new game can save normally after resetting every category.
-    yield context.add_score (2540, new Games.Scores.Category ("0", "0"), null, null);
+    yield context.add_score (10040, new Games.Scores.Category ("0", "0"), null, null);
     var reloaded = create_context ();
     assert_cmpuint (reloaded.get_categories ().length, CompareOperator.EQ, 1);
     var scores = reloaded.get_high_scores (new Games.Scores.Category ("0", "0"));
     assert_cmpuint (scores.length, CompareOperator.EQ, 1);
-    assert_cmpint ((int) scores[0].score, CompareOperator.EQ, 2540);
+    assert_cmpint ((int) scores[0].score, CompareOperator.EQ, 10040);
     yield reloaded.delete_scores ();
 }
 

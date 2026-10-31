@@ -590,16 +590,18 @@ public class Quadrapassel : Adw.Application
 
         var scoring_group = new Adw.PreferencesGroup ();
         scoring_group.set_title (_("Scoring"));
-        scoring_group.set_description (_("* If turned off, scoring reverts to the pre-April 2026 rules. Changes apply to new games."));
+        scoring_group.set_description (_("Classic uses the scoring rules from version 40.2. Changes apply to new games."));
 
-        var scoring_toggle = new Adw.SwitchRow ();
-        scoring_toggle.set_title (_("Scoring: reduce the base row bonus *"));
-        scoring_toggle.set_active (settings.get_boolean ("reduce-base-row-bonus"));
-        scoring_toggle.notify["active"].connect (() => {
-            if (!scoring_change_pending && scoring_toggle.active != settings.get_boolean ("reduce-base-row-bonus"))
-                change_scoring_rules.begin (scoring_toggle);
+        var scoring_row = new Adw.ComboRow ();
+        scoring_row.set_title (_("Scoring rules"));
+        scoring_row.set_model (new Gtk.StringList ({ _("Modern"), _("Classic (40.2)") }));
+        scoring_row.set_selected ((uint) get_scoring_rules ());
+        scoring_row.notify["selected"].connect (() => {
+            if (!scoring_change_pending && scoring_row.selected <= (uint) ScoringRules.CLASSIC &&
+                scoring_row.selected != (uint) get_scoring_rules ())
+                change_scoring_rules.begin (scoring_row);
         });
-        scoring_group.add (scoring_toggle);
+        scoring_group.add (scoring_row);
         game_page.add (scoring_group);
 
         var in_game_group = new Adw.PreferencesGroup ();
@@ -676,11 +678,17 @@ public class Quadrapassel : Adw.Application
                                         import_history ? new Games.Scores.HistoryFileImporter (parse_old_score) : null);
     }
 
-    private async void change_scoring_rules (Adw.SwitchRow toggle)
+    private ScoringRules get_scoring_rules ()
+    {
+        // Keep the existing key so an earlier On/Off preference becomes Modern/Classic.
+        return settings.get_boolean ("reduce-base-row-bonus") ? ScoringRules.MODERN : ScoringRules.CLASSIC;
+    }
+
+    private async void change_scoring_rules (Adw.ComboRow row)
     {
         scoring_change_pending = true;
-        toggle.sensitive = false;
-        bool reduce_bonus = toggle.active;
+        row.sensitive = false;
+        var rules = (ScoringRules) row.selected;
 
         var body = _("Your scoreboard could contain scores calculated using two different scoring rules. Would you like to reset the scoreboard? Resetting clears all saved scores for every difficulty.");
         if (game != null && !game.game_over)
@@ -694,7 +702,7 @@ public class Quadrapassel : Adw.Application
         dialog.close_response = "cancel";
         dialog.set_response_appearance ("reset", Adw.ResponseAppearance.DESTRUCTIVE);
 
-        var response = yield dialog.choose (toggle, null);
+        var response = yield dialog.choose (row, null);
         if (response == "keep" || response == "reset")
         {
             bool changed = true;
@@ -720,16 +728,19 @@ public class Quadrapassel : Adw.Application
                     var error_dialog = new Adw.AlertDialog (_("Could Not Reset the Scoreboard"),
                         _("The scoring setting has not changed. Some scores may already have been removed. Please check that your scores folder is writable and try again."));
                     error_dialog.add_response ("close", _("_Close"));
-                    yield error_dialog.choose (toggle, null);
+                    yield error_dialog.choose (row, null);
                 }
             }
             if (changed)
-                settings.set_boolean ("reduce-base-row-bonus", reduce_bonus);
+            {
+                settings.set_boolean ("reduce-base-row-bonus", rules == ScoringRules.MODERN);
+                Settings.sync ();
+            }
         }
 
-        // Restore the switch after cancellation or failure without opening another prompt.
-        toggle.active = settings.get_boolean ("reduce-base-row-bonus");
-        toggle.sensitive = true;
+        // Restore the selection after cancellation or failure without opening another prompt.
+        row.selected = (uint) get_scoring_rules ();
+        row.sensitive = true;
         scoring_change_pending = false;
     }
 
@@ -1130,7 +1141,7 @@ public class Quadrapassel : Adw.Application
                          pre_filled,
                          5 /* line fill density  */,
                          settings.get_boolean ("pick-difficult-blocks"),
-                         settings.get_boolean ("reduce-base-row-bonus"));
+                         get_scoring_rules ());
 
         game.pause_changed.connect (pause_changed_cb);
         game.shape_landed.connect (shape_landed_cb);

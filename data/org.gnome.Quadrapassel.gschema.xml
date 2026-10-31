@@ -38,8 +38,8 @@
     </key>
     <key name="reduce-base-row-bonus" type="b">
       <default>true</default>
-      <summary>Reduce the base row scoring bonus</summary>
-      <description>When turned on, clearing the bottom row awards a bonus of 100 times the level times the number of rows cleared. When turned off, use the pre-April 2026 bonus of 2500 times the level times the number of rows cleared. Changes apply to new games.</description>
+      <summary>Use Modern scoring rules</summary>
+      <description>True selects Modern scoring, with a bottom-row bonus of 100 times the level times the number of rows cleared. False selects Classic (40.2), with a flat bottom-row bonus of 10000 times the level. Changes apply to new games.</description>
     </key>
     <key name="use-seed" type="b">
       <default>false</default>
