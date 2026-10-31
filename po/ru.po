@@ -656,3 +656,7 @@ msgstr "Язык"
 #: src/quadrapassel.vala
 msgid "Restart Quadrapassel to apply language changes."
 msgstr "Перезапустите Quadrapassel, чтобы применить изменение языка."
+
+#: src/quadrapassel.vala data/org.gnome.Quadrapassel.gschema.xml
+msgid "Show grid outlines"
+msgstr "Показывать линии сетки"

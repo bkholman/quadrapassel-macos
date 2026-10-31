@@ -279,6 +279,7 @@ public class Quadrapassel : Adw.Application
         view.theme = settings.get_string ("theme");
         view.mute = !settings.get_boolean ("sound");
         view.show_shadow = settings.get_boolean ("show-shadow");
+        settings.bind ("show-grid-outlines", view, "show-grid-outlines", SettingsBindFlags.GET);
         view.game = new Game (20, 10, 1, 20, 10); // Game board size, changed width to 10
         game_aspect = new Games.GridFrame (10, 20);
         game_aspect.hexpand = true;
@@ -530,9 +531,17 @@ public class Quadrapassel : Adw.Application
         var preview_view = new GameView (false);
         var preview_game = new Game (5, 5, 1, 5, 8);
         preview_view.theme = settings.get_string ("theme");
+        settings.bind ("show-grid-outlines", preview_view, "show-grid-outlines", SettingsBindFlags.GET);
         preview_view.game = preview_game;
         var shape = preview_game.next_shape;
         theme_preview_frame.child = preview_view;
+
+        var board_group = new Adw.PreferencesGroup ();
+        var grid_outlines_toggle = new Adw.SwitchRow ();
+        grid_outlines_toggle.set_title (_("Show grid outlines"));
+        settings.bind ("show-grid-outlines", grid_outlines_toggle, "active", SettingsBindFlags.DEFAULT);
+        board_group.add (grid_outlines_toggle);
+        appearance_page.add (board_group);
 
         var appearance_group = new Games.AppearanceGroup ();
 

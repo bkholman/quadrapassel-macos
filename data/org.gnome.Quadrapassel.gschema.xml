@@ -20,6 +20,11 @@
       <summary>The theme used for rendering the blocks</summary>
       <description>The name of the theme used for rendering the blocks and the background.</description>
     </key>
+    <key name="show-grid-outlines" type="b">
+      <default>false</default>
+      <summary>Show grid outlines</summary>
+      <description>Draw light grey outlines around the board's empty cells.</description>
+    </key>
     <key name="show-shadow" type="b">
       <default>false</default>
       <summary>Whether to show where the moving block will land</summary>

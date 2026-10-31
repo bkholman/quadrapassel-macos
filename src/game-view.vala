@@ -92,6 +92,13 @@ public class GameView : Gtk.Widget {
         set { _show_shadow = value; queue_allocate (); }
     }
 
+    private bool _show_grid_outlines = false;
+    public bool show_grid_outlines
+    {
+        get { return _show_grid_outlines; }
+        set { _show_grid_outlines = value; queue_draw (); }
+    }
+
     /* Overlay to draw messages on */
     private Gtk.Label text_overlay;
 
@@ -155,6 +162,39 @@ public class GameView : Gtk.Widget {
             critical ("Failed to create sounds: %s".printf (e.message));
             mute = true;
         }
+    }
+
+    protected override void snapshot (Gtk.Snapshot snapshot)
+    {
+        if (show_grid_outlines && game != null)
+        {
+            // Match the integer cell sizes used to position the pieces. Draw
+            // shared edges once, underneath blocks, shadows and the text overlay.
+            int block_width = get_width () / game.width;
+            int block_height = get_height () / game.height;
+            if (block_width > 0 && block_height > 0)
+            {
+                int grid_width = block_width * game.width;
+                int grid_height = block_height * game.height;
+                var color = Gdk.RGBA () { red = 0.65f, green = 0.65f, blue = 0.65f, alpha = 1.0f };
+                var bounds = Graphene.Rect ();
+                // Apply translucency once so intersections are no brighter than the lines.
+                snapshot.push_opacity (0.45);
+                for (int x = 0; x <= game.width; x++)
+                {
+                    bounds.init (int.min (x * block_width, grid_width - 1), 0, 1, grid_height);
+                    snapshot.append_color (color, bounds);
+                }
+                for (int y = 0; y <= game.height; y++)
+                {
+                    bounds.init (0, int.min (y * block_height, grid_height - 1), grid_width, 1);
+                    snapshot.append_color (color, bounds);
+                }
+                snapshot.pop ();
+            }
+        }
+
+        base.snapshot (snapshot);
     }
 
     protected override void size_allocate (int width, int height, int baseline) {

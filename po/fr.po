@@ -509,3 +509,7 @@ msgstr "Classique (40.2)"
 msgctxt "game rules"
 msgid "Clearing the bottom row adds a bonus. Modern scoring awards <i>100 × level × rows destroyed</i>. Classic (40.2) awards <i>10000 × level</i>, regardless of the number of rows destroyed. Choose the scoring rules in Preferences; changes apply to new games."
 msgstr "Supprimer la ligne du bas ajoute un bonus. Le calcul moderne accorde <i>100 × niveau × lignes supprimées</i>. Classique (40.2) accorde <i>10000 × niveau</i>, quel que soit le nombre de lignes supprimées. Choisissez les règles de calcul des points dans les préférences ; les changements s’appliquent aux nouvelles parties."
+
+#: src/quadrapassel.vala data/org.gnome.Quadrapassel.gschema.xml
+msgid "Show grid outlines"
+msgstr "Afficher les lignes de la grille"

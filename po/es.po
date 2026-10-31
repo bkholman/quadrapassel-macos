@@ -478,3 +478,7 @@ msgstr "Clásica (40.2)"
 msgctxt "game rules"
 msgid "Clearing the bottom row adds a bonus. Modern scoring awards <i>100 × level × rows destroyed</i>. Classic (40.2) awards <i>10000 × level</i>, regardless of the number of rows destroyed. Choose the scoring rules in Preferences; changes apply to new games."
 msgstr "Eliminar la fila inferior añade una bonificación. La puntuación moderna otorga <i>100 × nivel × filas eliminadas</i>. Clásica (40.2) otorga <i>10000 × nivel</i>, independientemente del número de filas eliminadas. Elija las reglas de puntuación en Preferencias; los cambios se aplican a las partidas nuevas."
+
+#: src/quadrapassel.vala data/org.gnome.Quadrapassel.gschema.xml
+msgid "Show grid outlines"
+msgstr "Mostrar las líneas de la cuadrícula"

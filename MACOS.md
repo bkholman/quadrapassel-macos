@@ -84,6 +84,11 @@ The app resolves resources relative to its executable, including when renamed or
 moved. Image-loader cache files are written under GLib's user cache directory,
 outside the signed app bundle.
 
+In **Preferences → Appearance**, **Show grid outlines** adds thin, translucent grey
+outlines to the empty board cells. It is off by default, applies immediately to
+the game and appearance preview, and is remembered between launches. The outlines
+stay aligned with the pieces when the window is resized and work with every theme.
+
 In **Preferences → Game → Scoring → Scoring rules**, choose **Modern** (the default)
 or **Classic (40.2)**. When a clear includes the bottom row, Modern adds
 `100 × level × rows cleared`; Classic adds a flat `10000 × level`, regardless of
