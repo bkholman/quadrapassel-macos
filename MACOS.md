@@ -194,7 +194,7 @@ signs every bundled library and the app with Developer ID, enables Hardened
 Runtime, and creates a signed drag-to-Applications DMG. With `--notarize`, it
 uploads the app and then the DMG to Apple, retains submission IDs and diagnostics,
 staples accepted tickets, and verifies Gatekeeper acceptance. It never publishes
-to a website, GitHub, Gitea, or the App Store.
+to a website, GitHub, or the App Store.
 
 All release tooling lives in this repository. The workflow follows the useful
 steps from the LoanExplorer release process, without depending on that checkout,
@@ -299,7 +299,6 @@ and available SPDX metadata. Publish matching source and build instructions with
 releases, and satisfy each bundled component's source and redistribution terms;
 the generated notice directory is not a corresponding-source archive.
 
-Development can remain on the private Gitea remote. Building the app does not
-publish, commit, push, or change the repository's remotes.
+Building the app does not publish, commit, push, or change the repository's remotes.
 
 Reference: [GTK's macOS integration documentation](https://docs.gtk.org/gtk4/osx.html).
