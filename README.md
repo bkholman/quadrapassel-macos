@@ -11,7 +11,7 @@ gameplay features, themes, sounds, and Linux desktop integration.
 ## macOS app
 
 Download the signed and notarized DMG from
-[GitHub Releases](https://github.com/bkholman/quadrapassel/releases/latest),
+[GitHub Releases](https://github.com/bkholman/quadrapassel-macos/releases/latest),
 open it, and drag **Quadrapassel** to **Applications**.
 
 - A self-contained `Quadrapassel.app` runs with the native macOS display backend

@@ -308,7 +308,7 @@ For the existing 51.0 build 6 installer:
 ```sh
 python3 build-aux/macos/publish-release.py \
   dist/releases/Quadrapassel-51.0-6-arm64 \
-  --repo bkholman/quadrapassel \
+  --repo bkholman/quadrapassel-macos \
   --target 9099f8c981a97416e0282c1293c288682ee3a0e6 \
   --notes-file releases/macos-51.0-6.md \
   --publish

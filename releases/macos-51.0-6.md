@@ -39,10 +39,10 @@ shasum -a 256 -c Quadrapassel-51.0-6-arm64.dmg.sha256
 ```
 
 This installer was built from commit
-[`9099f8c`](https://github.com/bkholman/quadrapassel/commit/9099f8c981a97416e0282c1293c288682ee3a0e6).
+[`9099f8c`](https://github.com/bkholman/quadrapassel-macos/commit/9099f8c981a97416e0282c1293c288682ee3a0e6).
 The `macos-51.0-6` tag and GitHub's source archives identify the matching application
 source. Build and release instructions are in
-[MACOS.md](https://github.com/bkholman/quadrapassel/blob/main/MACOS.md).
+[MACOS.md](https://github.com/bkholman/quadrapassel-macos/blob/main/MACOS.md).
 
 Quadrapassel retains its GPL-3.0-or-later license and GNOME author credits, with
 Brian Holman credited for the MacOS port. Bundled dependency notices, versions,
